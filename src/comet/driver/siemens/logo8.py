@@ -37,10 +37,11 @@ def pressure_to_voltage(pressure: float) -> float:
     return round(5.5 + log10(pressure), 0)
 
 
-class Logo6(Driver):
+class Logo8(Driver):
 
     def read(self, address: str) -> float:
         """Read analog value from memory bank in Logo!8 PLC"""
+
         return self.resource.read(address) / 1000 * 10
 
     def write(self, address: str, value: float) -> None:
@@ -54,7 +55,8 @@ class Logo6(Driver):
     def gauge_pressure(self):
         """Get pressure measured by RPT200 gauge in mbar"""
 
-        gauge_voltage = self.resource.read(LOGO_ADRESSES["pressure_gauge"])
+        gauge_voltage = self.read(LOGO_ADRESSES["pressure_gauge"])
+        print("gauge_voltage", gauge_voltage)
 
         return voltage_to_pressure(gauge_voltage)
 
@@ -68,13 +70,13 @@ class Logo6(Driver):
     def valve_voltage(self, voltage: float):
         """Set PID needle valve control voltage in Volts"""
 
-        self.resource.write(LOGO_ADRESSES["needle_valve"], voltage)
+        self.write(LOGO_ADRESSES["needle_valve"], voltage)
 
     @property
     def pressure_setpoint(self):
         """Get PID pressure setpoint in mbar"""
 
-        setpoint_voltage = self.resource.read(LOGO_ADRESSES["pressure_setpoint"])
+        setpoint_voltage = self.read(LOGO_ADRESSES["pressure_setpoint"])
 
         return voltage_to_pressure(setpoint_voltage)
 
@@ -84,15 +86,15 @@ class Logo6(Driver):
 
         setpoint_voltage = pressure_to_voltage(pressure)
 
-        self.resource.write(LOGO_ADRESSES["pressure_setpoint"], setpoint_voltage)
+        self.write(LOGO_ADRESSES["pressure_setpoint"], setpoint_voltage)
 
     def close_valve(self):
         """Completely shut needle valve (0V)"""
-        self.resource.write(LOGO_ADRESSES["needle_valve"], 0.0)
+        self.write(LOGO_ADRESSES["needle_valve"], 0.0)
 
     def open_valve(self):
         """Completely open needle valve (10V)"""
-        self.resource.write(LOGO_ADRESSES["needle_valve"], 10.0)
+        self.write(LOGO_ADRESSES["needle_valve"], 10.0)
 
     def identify(self):
         """Acquire Identifcation string"""
