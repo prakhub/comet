@@ -34,10 +34,17 @@ def pressure_to_voltage(pressure: float) -> float:
     Returns:
         float: Voltage in Volts
     """
-    return round(5.5 + log10(pressure), 0)
+    return round(((5.5 + log10(float(pressure))) * 100), 0) / 100
 
 
 class Logo8(Driver):
+
+    def identify(self):
+        """Acquire Identifcation string"""
+
+        pointer = self.resource.pointer
+
+        return f"Logo!8 pointer at {pointer}"
 
     def read(self, address: str) -> float:
         """Read analog value from memory bank in Logo!8 PLC"""
@@ -64,7 +71,7 @@ class Logo8(Driver):
     def valve_voltage(self):
         """Get PID needle valve control voltage in Volts"""
 
-        return self.resource.read(LOGO_ADRESSES["needle_valve"])
+        return self.read(LOGO_ADRESSES["needle_valve"])
 
     @valve_voltage.setter
     def valve_voltage(self, voltage: float):
@@ -95,10 +102,3 @@ class Logo8(Driver):
     def open_valve(self):
         """Completely open needle valve (10V)"""
         self.write(LOGO_ADRESSES["needle_valve"], 10.0)
-
-    def identify(self):
-        """Acquire Identifcation string"""
-
-        pointer = self.resource.pointer
-
-        return f"Logo!8 pointer at {pointer}"
